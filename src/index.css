@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Premium Aesthetics for Schedule B Proxy */
 :root {
   --primary-color: #0078d4;
