@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import type { ScheduleBItem, ScheduleBResponse, SelectedCode } from '../types/census';
 import { ChevronRight, Loader2, FileText } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, combineNestedDescriptions } from '../lib/utils';
 import { fmFetch } from '@proofkit/webviewer';
 
 interface TreeNodeProps {
   node: ScheduleBItem;
   onSelect: (code: SelectedCode) => void;
   level?: number;
+  parentDescriptions?: string[];
 }
 
 // Check if we're running in a FileMaker WebViewer context
@@ -34,7 +35,7 @@ const hasLeafDescendants = (node: ScheduleBItem): boolean => {
   return false;
 };
 
-function TreeNode({ node, onSelect, level = 0 }: TreeNodeProps) {
+function TreeNode({ node, onSelect, level = 0, parentDescriptions = [] }: TreeNodeProps) {
   // Expand by default if this node has leaf descendants (nodes with Select buttons)
   const [isExpanded, setIsExpanded] = useState(() => {
     const hasChildren = node.items && node.items.length > 0;
@@ -47,6 +48,15 @@ function TreeNode({ node, onSelect, level = 0 }: TreeNodeProps) {
   const hasChildren = node.items && node.items.length > 0;
   const isLeafNode = node.code && node.code.length === 10; // 10-digit codes are selectable
 
+  // Get current node's description
+  const currentDescription = node.desc || node.name || '';
+  
+  // Build the array of parent descriptions for children
+  // Include current node's description if it's not empty
+  const descriptionsForChildren = currentDescription
+    ? [...parentDescriptions, currentDescription]
+    : parentDescriptions;
+
   const handleToggle = () => {
     if (hasChildren) {
       setIsExpanded(!isExpanded);
@@ -56,9 +66,15 @@ function TreeNode({ node, onSelect, level = 0 }: TreeNodeProps) {
   const handleSelect = async () => {
     if (!isLeafNode || !node.code) return;
     
+    // Combine all parent descriptions with the current description
+    const fullDescription = combineNestedDescriptions(
+      parentDescriptions,
+      currentDescription
+    );
+    
     const selectedCode: SelectedCode = {
       code: node.code,
-      description: node.desc || node.name || '',
+      description: fullDescription,
       uom: node.uom,
     };
 
@@ -72,8 +88,8 @@ function TreeNode({ node, onSelect, level = 0 }: TreeNodeProps) {
       setFmLoading(true);
       try {
         await fmFetch('Handle Schedule B Callback', {
-          scheduleBNumber: selectedCode.code,
-          description: selectedCode.description,
+          schedule_b_code: selectedCode.code,
+          schedule_b_description: selectedCode.description || '',
         });
       } catch (error) {
         console.error('Error calling FileMaker script:', error);
@@ -164,6 +180,7 @@ function TreeNode({ node, onSelect, level = 0 }: TreeNodeProps) {
               node={child}
               onSelect={onSelect}
               level={level + 1}
+              parentDescriptions={descriptionsForChildren}
             />
           ))}
         </div>

@@ -9,8 +9,9 @@ import { QuestionPanel } from './QuestionPanel';
 import { ScheduleBTable } from './ScheduleBTable';
 import { SelectedCodeDisplay } from './SelectedCodeDisplay';
 import type { SelectedCode } from '../types/census';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, X } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { callFMScript } from '@proofkit/webviewer';
 
 export default function App() {
   const [selectedCode, setSelectedCode] = useState<SelectedCode | null>(null);
@@ -47,18 +48,23 @@ export default function App() {
     reset();
   };
 
+  const handleCancel = () => {
+    // Call FileMaker script to close window
+    callFMScript('close window');
+  };
+
   const isLoading = state === 'loading';
   const showQuestions = state === 'questioning';
   const showResults = state === 'complete' && !selectedCode;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 sm:pt-4 pb-2 sm:pb-12">
         {/* Main Content */}
         <div className="space-y-6">
           {/* Search Input */}
           {!selectedCode && (
-            <div className="bg-card rounded-xl shadow-sm border border-border p-6 sm:p-8 backdrop-blur-sm">
+            <div className="bg-card rounded-xl shadow-sm border border-border p-2 sm:p-8 backdrop-blur-sm">
               <SearchInput
                 onSearch={handleSearch}
                 disabled={isLoading || showQuestions}
@@ -164,6 +170,21 @@ export default function App() {
           )}
         </div>
       </div>
+      
+      {/* Cancel Button - Always visible at bottom right */}
+      <button
+        type="button"
+        onClick={handleCancel}
+        className={cn(
+          "fixed bottom-4 right-4 px-5 py-3.5 rounded-lg font-medium transition-all duration-200",
+          "flex items-center gap-2 shadow-lg z-50",
+          "bg-red-600 text-white hover:bg-red-700 hover:shadow-xl",
+          "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        )}
+      >
+        <X className="w-4 h-4" />
+        Cancel
+      </button>
     </div>
   );
 }
