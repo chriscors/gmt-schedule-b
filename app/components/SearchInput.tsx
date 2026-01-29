@@ -28,7 +28,7 @@ export function SearchInput({ onSearch, disabled = false }: SearchInputProps) {
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe your product (e.g., 'coffee beans', 'laptop computer')"
+            placeholder="Describe your product (e.g., 'coffee beans', 'cereal')"
             disabled={disabled}
             className={cn(
               "w-full pl-12 pr-4 py-3.5",
