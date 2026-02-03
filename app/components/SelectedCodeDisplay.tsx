@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { SelectedCode } from '../types/census';
 import { Check, Copy, RotateCcw, CheckCircle2 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, formatScheduleBCode } from '../lib/utils';
 import { callFMScript } from '@proofkit/webviewer';
 
 interface SelectedCodeDisplayProps {
@@ -16,14 +16,15 @@ export function SelectedCodeDisplay({ selectedCode, onReset }: SelectedCodeDispl
 
   const handleCopy = () => {
     if (selectedCode?.code) {
-      navigator.clipboard.writeText(selectedCode.code);
+      const formattedCode = formatScheduleBCode(selectedCode.code);
+      navigator.clipboard.writeText(formattedCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       
       // Call FileMaker script with Schedule B code and description
       callFMScript('Handle Schedule B Callback', {
-        schedule_b_code: selectedCode.code,
-        Schedule_b_description: selectedCode.description || ''
+        schedule_b_code: formattedCode,
+        schedule_b_description: selectedCode.description || ''
       });
     }
   };
@@ -63,7 +64,7 @@ export function SelectedCodeDisplay({ selectedCode, onReset }: SelectedCodeDispl
             </label>
             <div className="flex items-center gap-3">
               <div className="flex-1 px-5 py-3.5 bg-background border-2 border-green-500/30 rounded-lg font-mono text-xl font-bold text-green-700 dark:text-green-400 shadow-sm">
-                {selectedCode.code}
+                {formatScheduleBCode(selectedCode.code)}
               </div>
               <button
                 type="button"

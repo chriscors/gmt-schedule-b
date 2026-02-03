@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import type { ScheduleBItem, ScheduleBResponse, SelectedCode } from '../types/census';
 import { ChevronRight, Loader2, FileText } from 'lucide-react';
-import { cn, combineNestedDescriptions } from '../lib/utils';
+import { cn, combineNestedDescriptions, formatScheduleBCode } from '../lib/utils';
 import { fmFetch } from '@proofkit/webviewer';
 
 interface TreeNodeProps {
@@ -88,7 +88,7 @@ function TreeNode({ node, onSelect, level = 0, parentDescriptions = [] }: TreeNo
       setFmLoading(true);
       try {
         await fmFetch('Handle Schedule B Callback', {
-          schedule_b_code: selectedCode.code,
+          schedule_b_code: formatScheduleBCode(selectedCode.code),
           schedule_b_description: selectedCode.description || '',
         });
       } catch (error) {
@@ -129,7 +129,7 @@ function TreeNode({ node, onSelect, level = 0, parentDescriptions = [] }: TreeNo
 
         {/* Code */}
         <div className="w-36 flex-shrink-0 font-mono text-sm font-semibold text-foreground">
-          {node.code || '—'}
+          {node.code ? formatScheduleBCode(node.code) : '—'}
         </div>
 
         {/* Description */}

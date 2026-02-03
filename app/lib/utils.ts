@@ -6,6 +6,20 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Formats a Schedule B code for display and FileMaker.
+ * 10-digit codes are formatted as XXXX.XX.XXXX (e.g., 6309.00.0000).
+ * Non-10-digit codes (section/chapter headings) are returned as-is.
+ */
+export function formatScheduleBCode(code: string | undefined): string {
+  if (!code || typeof code !== 'string') return code ?? '';
+  const digitsOnly = code.replace(/\D/g, '');
+  if (digitsOnly.length === 10) {
+    return `${digitsOnly.slice(0, 4)}.${digitsOnly.slice(4, 6)}.${digitsOnly.slice(6, 10)}`;
+  }
+  return code;
+}
+
+/**
  * Normalizes capitalization of text to title case while preserving important patterns.
  * Handles roman numerals, common words, and maintains proper sentence structure.
  */
